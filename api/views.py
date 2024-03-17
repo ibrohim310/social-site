@@ -235,6 +235,7 @@ class CommentCRUD(APIView):
     def delete(self, request, pk):
         try:
             comment = models.Comment.objects.get(pk=pk)
+
         except models.Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
@@ -275,3 +276,37 @@ class LikeCRUD(APIView):
         
         like.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+def user_posts(request, pk):
+    user = models.User.objects.get(pk=pk)
+    posts = models.Post.objects.filter(author=user).order_by('-date')
+    serializer_data = serializers.PostSerializer(posts, many=True)
+    return Response(serializer_data.data)
+
+
+@api_view(['GET'])
+def following_posts(request):
+
+    models.UserReletion.objects.filter(from_user=request.user)
+    posts = []
+
+    for user in  models.UserReletion.objects.filter(from_user=request.user):
+        posts.append(models.Post.objects.filter(author=user.to_user).order_by('date').last())
+
+    posts.sort(key= lambda x:x.date, reverse=True)
+    serializer_data = serializers.PostSerializer(data=posts, many=True)
+    serializer_data.is_valid()
+
+    return Response(serializer_data.data)
+
+
+@api_view(['GET'])
+def post_detail(request, pk):
+    post = models.Post.objects.get(pk=pk)
+    comment = models.Comment.objects.filter(post=post)
+    post_serializer = serializers.PostSerializer(post).data
+    comment_serializer = serializers.CommentSerializer(comment, many=True).data
+    return Response({'post':post_serializer, 'comment':comment_serializer})
+

@@ -10,6 +10,10 @@ urlpatterns = [
     path('following/<int:pk>/', views.following),
     path('follower/<int:pk>/', views.follower),
     
+    path('following-posts/', views.following_posts),
+    path('user-posts/<int:pk>/', views.user_posts),
+    path('post-detail/<int:pk>/', views.post_detail),
+    
     path('posts/', views.PostCRUD.as_view(), name='post-crud'),
     path('posts/filter/<int:author_id>/', views.PostFilter.as_view(), name='post-filter'),
     path('comments/', views.CommentCRUD.as_view(), name='comment-crud'),
